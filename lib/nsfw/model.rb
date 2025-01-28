@@ -2,7 +2,8 @@ require "onnxruntime"
 
 module NSFW
   class Model
-    MODEL_PATH       = "vendor/onnx_models/nsfw.onnx"
+    root_path        = Pathname.new(__dir__).parent.parent
+    MODEL_PATH       = "#{root_path}/vendor/onnx_models/nsfw.onnx"
     CATEGORIES       = ['drawings', 'hentai', 'neutral', 'porn', 'sexy']
     SAFETY_THRESHOLD = 0.85
 
@@ -27,7 +28,7 @@ module NSFW
     end
 
     def reshape_tensor(tensor)
-      OnnxRuntime::Utils.reshape(tensor, [1, 224, 224, 3])
+      reshape(tensor, [1, 224, 224, 3])
     end
 
     private
@@ -44,6 +45,15 @@ module NSFW
     def format_prediction(prediction)
       results = prediction.fetch("Identity").first
       CATEGORIES.zip(results).sort{|a,b| b.last - a.last }.to_h
+    end
+
+    # Copy from https://github.com/ankane/onnxruntime-ruby/blob/v0.9.3/lib/onnxruntime/ort_value.rb#L257
+    def reshape(arr, dims)
+      arr = arr.flatten
+      dims[1..-1].reverse.each do |dim|
+        arr = arr.each_slice(dim)
+      end
+      arr.to_a
     end
   end
 end
