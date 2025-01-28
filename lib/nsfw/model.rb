@@ -27,7 +27,7 @@ module NSFW
     end
 
     def reshape_tensor(tensor)
-      OnnxRuntime::Utils.reshape(tensor, [1, 224, 224, 3])
+      OnnxRuntime::OrtValue.reshape(tensor, [1, 224, 224, 3])
     end
 
     private
