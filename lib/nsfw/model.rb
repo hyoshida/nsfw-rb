@@ -27,7 +27,10 @@ module NSFW
     end
 
     def reshape_tensor(tensor)
-      OnnxRuntime::OrtValue.reshape(tensor, [1, 224, 224, 3])
+      session = @model.instance_variable_get(:@session)
+      session = session.instance_variable_get(:@session)
+      ort_value = OnnxRuntime::OrtValue.new(session)
+      ort_value.send(:reshape, tensor, [1, 224, 224, 3])
     end
 
     private
